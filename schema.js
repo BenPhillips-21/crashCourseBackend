@@ -146,6 +146,10 @@ const typeDefs = `
         accidentID: String!
         photoURL: String!
     ): accident
+    addWitness(
+        accidentID: String!
+        input: WitnessInput
+    ): accident
     }
 `
 
