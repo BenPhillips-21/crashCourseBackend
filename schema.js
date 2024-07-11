@@ -42,6 +42,7 @@ const typeDefs = `
     }
 
     type accident {
+        id: ID!
         user: [User!]!
         date: DateTime!
         time: String!
@@ -118,6 +119,18 @@ const typeDefs = `
         photos: [PhotoInput!]
         otherVehicles: [VehicleInput!]
         witnesses: [WitnessInput!]
+    ): accident
+    editAccident(
+        accidentID: String!
+        date: DateTime
+        time: String
+        location: String
+        speed: String
+        weatherConditions: String
+        crashDescription: String
+        photos: [PhotoInput]
+        otherVehicles: [VehicleInput]
+        witnesses: [WitnessInput]
     ): accident
     }
 `

@@ -155,6 +155,33 @@ const resolvers = {
       }
 
       return accident
+    },
+    editAccident: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+
+      const foundItem = currentUser.accidents.find(item => item.toString() === args.accidentID)
+
+      if (!foundItem) {
+        throw new GraphQLError('Cannot find this accident')
+      } 
+
+      const accident = await Accident.findById(args.accidentID)
+
+      if (!accident) {
+        return null
+    } else {
+        args.date ? accident.date = args.date : null
+        args.time ? accident.time = args.time : null
+        args.location ? accident.location = args.location : null
+        args.speed ? accident.speed = args.speed : null
+        args.weatherConditions ? accident.weatherConditions = args.weatherConditions : null
+        args.crashDescription ? accident.crashDescription = args.crashDescription : null
+        accident.save()
+        return accident
+    }      
     }
   }
 }
