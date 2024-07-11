@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs")
 const { GraphQLError } = require('graphql')
 const User = require('./models/user')
+const Insurance = require('./models/insurance')
 
 const dotenv = require('dotenv');
 
@@ -14,8 +15,19 @@ function validateEmail(email) {
 
 const resolvers = {
   Query: {
-    me: (root, args, context) => {
-      return context.currentUser
+    me: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+      const userID = currentUser._id.toString()
+      try {
+        const populatedUser = await User.findById(userID)
+          .populate('insuranceDetails')
+        return populatedUser;
+      } catch (err) {
+        throw new GraphQLError("Could not fetch user data");
+      }
     }
   },
   Mutation: {
@@ -65,6 +77,30 @@ const resolvers = {
       }
   
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+    },
+    addInsuranceDetails: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+
+      const insurance = new Insurance({ ...args });
+      insurance.owner = currentUser._id;
+
+      try {
+        await insurance.save();
+      } catch (err) {
+        throw new GraphQLError("Could not save insurance details");
+      }
+
+      currentUser.insuranceDetails.push(insurance._id);
+      try {
+        await currentUser.save();
+      } catch (err) {
+        throw new GraphQLError("Could not update user with insurance details");
+      }
+
+      return insurance;
     },
   }
 }

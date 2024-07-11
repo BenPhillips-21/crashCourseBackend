@@ -74,6 +74,13 @@ const typeDefs = `
         email: String!
         password: String!
     ): Token
+    addInsuranceDetails(
+        carRegistrationNumber: String!
+        insurerCompany: String!
+        insurerContactNumber: String!
+        insurancePolicy: String!
+        insurancePolicyNumber: String!
+    ): insuranceDetails
     }
 `
 
