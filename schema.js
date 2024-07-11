@@ -135,6 +135,9 @@ const typeDefs = `
         otherVehicles: [VehicleInput]
         witnesses: [WitnessInput]
     ): accident
+    deleteAccident(
+        accidentID: String!
+    ): accident
     }
 `
 
