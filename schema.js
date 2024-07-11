@@ -142,6 +142,10 @@ const typeDefs = `
         accidentID: String!
         photoURL: String!
     ): accident
+    deletePhoto(
+        accidentID: String!
+        photoURL: String!
+    ): accident
     }
 `
 

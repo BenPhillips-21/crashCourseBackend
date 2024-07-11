@@ -35,7 +35,7 @@ const schema = new Schema({
     photos: [{ 
         url: {
           type: String,
-          default: "",
+          unique: true
         },
       }],
     otherVehicles: [{ 

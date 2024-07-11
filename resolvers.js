@@ -262,7 +262,38 @@ const resolvers = {
       } catch (err) {
         throw new GraphQLError(err.message)
       }
-    }
+    },
+    deletePhoto: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+    
+      try {
+        const foundItem = currentUser.accidents.find(
+          item => item.toString() === args.accidentID
+        );
+    
+        if (!foundItem) {
+          throw new GraphQLError('Cannot find those accident details');
+        }
+    
+        const accident = await Accident.findById(args.accidentID);
+        if (!accident) {
+          throw new GraphQLError("Could not find those accident details");
+        }
+    
+        accident.photos = accident.photos.filter(
+          photo => photo.url !== args.photoURL
+        );
+    
+        await accident.save();
+    
+        return accident;
+      } catch (err) {
+        throw new GraphQLError(err.message);
+      }
+    }    
   }
 }
 
