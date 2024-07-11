@@ -132,6 +132,29 @@ const resolvers = {
         return insurance
     }
     },
+    deleteInsuranceDetails: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+
+      try {
+        const foundItem = currentUser.insuranceDetails.find(item => item.toString() === args.insuranceID)
+
+        if (!foundItem) {
+          throw new GraphQLError('Cannot find this accident')
+        } 
+
+        const insuranceToDelete = await Insurance.findByIdAndDelete(args.insuranceID)
+        if (!insuranceToDelete) {
+          throw new GraphQLError("Could not find those insurance details")
+        }
+
+        return insuranceToDelete
+      } catch (err) {
+        throw new GraphQLError(err.message)
+      }
+    },
     addAccident: async (root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {

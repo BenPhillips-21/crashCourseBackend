@@ -109,6 +109,9 @@ const typeDefs = `
         insurancePolicy: String
         insurancePolicyNumber: String
     ): insuranceDetails
+    deleteInsuranceDetails(
+        insuranceID: String!
+    ): insuranceDetails
     addAccident(
         date: DateTime!
         time: String!
