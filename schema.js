@@ -23,7 +23,25 @@ const typeDefs = `
         insurancePolicyNumber: String!
     }
 
+    input PhotoInput {
+        url: String!
+    }
+
+    input VehicleInput {
+        registrationNumber: String!
+        make: String!
+        model: String!
+    }
+
+    input WitnessInput {
+        firstName: String!
+        lastName: String!
+        phoneNumber: String!
+        involvement: String!
+    }
+
     type accident {
+        user: [User!]!
         date: DateTime!
         time: String!
         location: String!
@@ -81,6 +99,17 @@ const typeDefs = `
         insurancePolicy: String!
         insurancePolicyNumber: String!
     ): insuranceDetails
+    addAccident(
+        date: DateTime!
+        time: String!
+        location: String!
+        speed: String!
+        weatherConditions: String!
+        crashDescription: String!
+        photos: [PhotoInput!]
+        otherVehicles: [VehicleInput!]
+        witnesses: [WitnessInput!]
+    ): accident
     }
 `
 

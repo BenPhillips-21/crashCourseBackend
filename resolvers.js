@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs")
 const { GraphQLError } = require('graphql')
+
 const User = require('./models/user')
 const Insurance = require('./models/insurance')
+const Accident = require('./models/accident')
 
 const dotenv = require('dotenv');
 
@@ -24,6 +26,7 @@ const resolvers = {
       try {
         const populatedUser = await User.findById(userID)
           .populate('insuranceDetails')
+          .populate('accidents')
         return populatedUser;
       } catch (err) {
         throw new GraphQLError("Could not fetch user data");
@@ -102,6 +105,30 @@ const resolvers = {
 
       return insurance;
     },
+    addAccident: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+      
+      const accident = new Accident({ ...args })
+      accident.user = currentUser._id
+
+      try {
+        await accident.save()
+      } catch (err) {
+        throw new GraphQLError(err)
+      }
+
+      currentUser.accidents.push(accident._id)
+      try {
+        await currentUser.save();
+      } catch (err) {
+        throw new GraphQLError("Could not update user with insurance details");
+      }
+
+      return accident
+    }
   }
 }
 
