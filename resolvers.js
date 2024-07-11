@@ -228,6 +228,40 @@ const resolvers = {
       } catch (err) {
         throw new GraphQLError(err.message)
       }
+    },
+    addPhoto: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+
+      try {
+        const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
+
+        if (!isUserAccident) {
+          throw new GraphQLError('Cannot find this accident')
+        } 
+
+        const accident = await Accident.findById(args.accidentID)
+        if (!accident) {
+          throw new GraphQLError("Could not find that accident")
+        }
+        const photo = {
+          url: args.photoURL
+        }
+
+        accident.photos.push(photo)
+
+        try {
+          await accident.save();
+        } catch (err) {
+          throw new GraphQLError("Could not add photo to accident");
+        }
+  
+        return accident
+      } catch (err) {
+        throw new GraphQLError(err.message)
+      }
     }
   }
 }
