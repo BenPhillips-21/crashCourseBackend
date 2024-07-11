@@ -150,6 +150,10 @@ const typeDefs = `
         accidentID: String!
         input: WitnessInput
     ): accident
+    deleteWitness(
+        accidentID: String!
+        phoneNumber: String!
+    ): accident
     }
 `
 
