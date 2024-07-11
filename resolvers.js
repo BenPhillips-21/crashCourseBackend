@@ -351,8 +351,8 @@ const resolvers = {
           throw new GraphQLError("Could not find those accident details");
         }
     
-        accident.witnesses = accident.photos.filter(
-          photo => photo.phoneNumber !== args.phoneNumber
+        accident.witnesses = accident.witnesses.filter(
+          witness => witness.phoneNumber !== args.phoneNumber
         );
     
         await accident.save();
@@ -361,7 +361,75 @@ const resolvers = {
       } catch (err) {
         throw new GraphQLError(err.message);
       }
-    } 
+    },
+    addOtherVehicle: async (root, args, context) => {
+    const currentUser = context.currentUser;
+    if (!currentUser) {
+      throw new GraphQLError('Not authenticated')
+    }
+
+    try {
+      const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
+
+      if (!isUserAccident) {
+        throw new GraphQLError('Cannot find this accident')
+      } 
+
+      const accident = await Accident.findById(args.accidentID)
+      if (!accident) {
+        throw new GraphQLError("Could not find that accident")
+      }
+
+      const vehicle = {
+        registrationNumber: args.input.registrationNumber,
+        make: args.input.make,
+        model: args.input.model
+      }
+
+      accident.otherVehicles.push(vehicle)
+
+      try {
+        await accident.save();
+      } catch (err) {
+        throw new GraphQLError("Could not add other vehicle to accident");
+      }
+
+      return accident
+    } catch (err) {
+      throw new GraphQLError(err.message)
+    }
+  },
+  deleteOtherVehicle: async (root, args, context) => {
+    const currentUser = context.currentUser;
+    if (!currentUser) {
+      throw new GraphQLError('Not authenticated');
+    }
+
+    try {
+      const foundItem = currentUser.accidents.find(
+        item => item.toString() === args.accidentID
+      );
+  
+      if (!foundItem) {
+        throw new GraphQLError('Cannot find those accident details');
+      }
+  
+      const accident = await Accident.findById(args.accidentID);
+      if (!accident) {
+        throw new GraphQLError("Could not find those accident details");
+      }
+  
+      accident.otherVehicles = accident.otherVehicles.filter(
+        vehicle => vehicle.registrationNumber !== args.registrationNumber
+      );
+  
+      await accident.save();
+  
+      return accident;
+    } catch (err) {
+      throw new GraphQLError(err.message);
+    }
+  }
   }
 }
 

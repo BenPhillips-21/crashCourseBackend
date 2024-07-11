@@ -154,6 +154,14 @@ const typeDefs = `
         accidentID: String!
         phoneNumber: String!
     ): accident
+    addOtherVehicle(
+        accidentID: String!
+        input: VehicleInput
+    ): accident
+    deleteOtherVehicle(
+        accidentID: String!
+        registrationNumber: String!
+    ): accident
     }
 `
 
