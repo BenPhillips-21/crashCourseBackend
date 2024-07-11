@@ -105,12 +105,39 @@ const resolvers = {
 
       return insurance;
     },
+    editInsuranceDetails: async (root, args, context) => {
+      const currentUser = context.currentUser
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated')
+      }
+
+      const foundItem = currentUser.insuranceDetails.find(item => item.toString() === args.insuranceID)
+
+      if (!foundItem) {
+        throw new GraphQLError('Cannot find these insurance details')
+      } 
+
+      const insurance = await Insurance.findById(args.insuranceID)
+
+
+      if (!insurance) {
+        return null
+    } else {
+        args.carRegistrationNumber ? insurance.carRegistrationNumber = args.carRegistrationNumber : null
+        args.insurerCompany ? insurance.insurerCompany = args.insurerCompany : null
+        args.insurerContactNumber ? insurance.insurerContactNumber = args.insurerContactNumber : null
+        args.insurancePolicy ? insurance.insurancePolicy = args.insurancePolicy : null
+        args.insurancePolicyNumber ? insurance.insurancePolicyNumber = args.insurancePolicyNumber : null
+        insurance.save()
+        return insurance
+    }
+    },
     addAccident: async (root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
         throw new GraphQLError('Not authenticated');
       }
-      
+
       const accident = new Accident({ ...args })
       accident.user = currentUser._id
 

@@ -16,6 +16,7 @@ const typeDefs = `
     }
 
     type insuranceDetails {
+        id: ID!
         carRegistrationNumber: String!
         insurerCompany: String!
         insurerContactNumber: String!
@@ -98,6 +99,14 @@ const typeDefs = `
         insurerContactNumber: String!
         insurancePolicy: String!
         insurancePolicyNumber: String!
+    ): insuranceDetails
+    editInsuranceDetails(
+        insuranceID: String!
+        carRegistrationNumber: String
+        insurerCompany: String
+        insurerContactNumber: String
+        insurancePolicy: String
+        insurancePolicyNumber: String
     ): insuranceDetails
     addAccident(
         date: DateTime!
