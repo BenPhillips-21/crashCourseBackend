@@ -20,6 +20,7 @@ const typeDefs = `
         firstName: String!
         lastName: String!
         phoneNumber: String!
+        involvement: String!
     }
 
     type insuranceDetails {
@@ -33,20 +34,22 @@ const typeDefs = `
         insurancePolicyNumber: String!
     }
 
-    input OtherDriverInput {
-    firstName: String!
-    lastName: String!
-    phoneNumber: String!
-    involvement: String!
+input EditOtherDriverInput {
+    id: String!
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    involvement: String
 }
 
-input AddInsuranceInput {
-    carRegistrationNumber: String!
-    insurerCompany: String!
-    insurerContactNumber: String!
-    insurancePolicy: String!
-    insurancePolicyNumber: String!
-    otherDriver: OtherDriverInput
+input EditInsuranceInput {
+    insuranceID: String!
+    carRegistrationNumber: String
+    insurerCompany: String
+    insurerContactNumber: String
+    insurancePolicy: String
+    insurancePolicyNumber: String
+    otherDriver: EditOtherDriverInput
 }
 
     input PhotoInput {
@@ -112,16 +115,22 @@ input AddInsuranceInput {
         email: String!
         password: String!
     ): Token
+    addPerson(
+        firstName: String!
+        lastName: String!
+        phoneNumber: String!
+        involvement: String!
+    ): Person
     addInsuranceDetails(
-        input: AddInsuranceInput
+        carRegistrationNumber: String!
+        insurerCompany: String!
+        insurerContactNumber: String!
+        insurancePolicy: String!
+        insurancePolicyNumber: String!
+        otherDriver: ID
     ): insuranceDetails
     editInsuranceDetails(
-        insuranceID: String!
-        carRegistrationNumber: String
-        insurerCompany: String
-        insurerContactNumber: String
-        insurancePolicy: String
-        insurancePolicyNumber: String
+      input: EditInsuranceInput  
     ): insuranceDetails
     deleteInsuranceDetails(
         insuranceID: String!

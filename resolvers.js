@@ -83,72 +83,65 @@ const resolvers = {
   
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     },
+    addPerson: async (root, args, context) => {
+      const newPerson = new Person({ 
+        firstName: args.firstName,
+        lastName: args.lastName,
+        phoneNumber: args.phoneNumber,
+        involvement: args.involvement
+      });
+  
+      try {
+        await newPerson.save();
+      } catch (err) {
+        throw new GraphQLError("Could not save newPerson");
+      }
+      return newPerson
+    },
     addInsuranceDetails: async (root, args, context) => {
-      console.log(args.input.otherDriver)
-
-      if (!args.input.otherDriver) {
         const currentUser = context.currentUser;
         if (!currentUser) {
           throw new GraphQLError('Not authenticated');
         }
-    
-        const insurance = new Insurance({ 
-          owner: currentUser._id,
-          insurerContactNumber: args.input.insurerContactNumber,
-          insurerCompany: args.input.insurerCompany,
-          insurancePolicyNumber: args.input.insurancePolicyNumber,
-          insurancePolicy: args.input.insurancePolicy,
-          carRegistrationNumber: args.input.carRegistrationNumber
-         });
+
+        const mutation = {
+          insurerContactNumber: args.insurerContactNumber,
+          insurerCompany: args.insurerCompany,
+          insurancePolicyNumber: args.insurancePolicyNumber,
+          insurancePolicy: args.insurancePolicy,
+          carRegistrationNumber: args.carRegistrationNumber
+        }
+        
+        let insurance
+        
+        if (!args.otherDriver) {
+          insurance = new Insurance({ 
+            owner: currentUser._id,
+            ...mutation
+          })
+        } else {
+          insurance = new Insurance({ 
+            otherDriver: args.otherDriver,
+            ...mutation
+          })
+        }        
     
         try {
           await insurance.save();
         } catch (err) {
           throw new GraphQLError("Could not save insurance details!!!!!");
         }
-    
+        
+        if (!args.otherDriver) {
         currentUser.insuranceDetails.push(insurance._id);
         try {
           await currentUser.save();
         } catch (err) {
           throw new GraphQLError("Could not update user with insurance details");
         }
-    
-        return insurance;
-      } else {
-        console.log(args.input)
-        const driver = new Person({ 
-          firstName: args.input.otherDriver.firstName,
-          lastName: args.input.otherDriver.lastName,
-          phoneNumber: args.input.otherDriver.phoneNumber,
-          involvement: args.input.otherDriver.involvement
-        });
-    
-        try {
-          await driver.save();
-        } catch (err) {
-          throw new GraphQLError("Could not save driver");
-        }
-
-        const newDriver = await Person.findOne({ phoneNumber: args.input.otherDriver.phoneNumber });
-    
-        const insurance = new Insurance({ 
-          otherDriver: newDriver._id,
-          insurerContactNumber: args.input.insurerContactNumber,
-          insurerCompany: args.input.insurerCompany,
-          insurancePolicyNumber: args.input.insurancePolicyNumber,
-          insurancePolicy: args.input.insurancePolicy,
-          carRegistrationNumber: args.input.carRegistrationNumber
-        });
-    
-        try {
-          await insurance.save();
-        } catch (err) {
-          throw new GraphQLError("DOH... Could not save insurance details");
-        }
-    
-        return insurance;
       }
+    
+        return insurance;
     },    
     editInsuranceDetails: async (root, args, context) => {
       const currentUser = context.currentUser
@@ -156,24 +149,26 @@ const resolvers = {
         throw new GraphQLError('Not authenticated')
       }
 
-      const foundItem = currentUser.insuranceDetails.find(item => item.toString() === args.insuranceID)
-
-      if (!foundItem) {
-        throw new GraphQLError('Cannot find these insurance details')
-      } 
-
-      const insurance = await Insurance.findById(args.insuranceID)
-
+      const insurance = await Insurance.findById(args.input.insuranceID)
+      const driver = await Person.findById(args.input.otherDriver.id)
 
       if (!insurance) {
         return null
     } else {
-        args.carRegistrationNumber ? insurance.carRegistrationNumber = args.carRegistrationNumber : null
-        args.insurerCompany ? insurance.insurerCompany = args.insurerCompany : null
-        args.insurerContactNumber ? insurance.insurerContactNumber = args.insurerContactNumber : null
-        args.insurancePolicy ? insurance.insurancePolicy = args.insurancePolicy : null
-        args.insurancePolicyNumber ? insurance.insurancePolicyNumber = args.insurancePolicyNumber : null
+        args.input.carRegistrationNumber ? insurance.carRegistrationNumber = args.input.carRegistrationNumber : null
+        args.input.insurerCompany ? insurance.insurerCompany = args.input.insurerCompany : null
+        args.input.insurerContactNumber ? insurance.insurerContactNumber = args.input.insurerContactNumber : null
+        args.input.insurancePolicy ? insurance.insurancePolicy = args.input.insurancePolicy : null
+        args.input.insurancePolicyNumber ? insurance.insurancePolicyNumber = args.input.insurancePolicyNumber : null
         insurance.save()
+
+        if (driver) {
+          args.input.otherDriver.firstName ? driver.firstName = args.input.otherDriver.firstName : null
+          args.input.otherDriver.lastName ? driver.lastName = args.input.otherDriver.lastName : null
+          args.input.otherDriver.phoneNumber ? driver.phoneNumber = args.input.otherDriver.phoneNumber : null
+          args.input.otherDriver.involvement ? driver.involvement = args.input.otherDriver.involvement : null
+          driver.save()
+        }
         return insurance
     }
     },
@@ -200,7 +195,6 @@ const resolvers = {
         throw new GraphQLError(err.message)
       }
     },
-    // adding insurance details 2 crash
     addAccident: async (root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
