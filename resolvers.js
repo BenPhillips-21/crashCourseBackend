@@ -98,6 +98,21 @@ const resolvers = {
       }
       return newPerson
     },
+    editPerson: async (root, args) => {
+      const person = await Person.findById(args.personID)
+      if (!person) {
+        throw new GraphQLError("Could not find that person in the database")
+      }
+
+      args.firstName ? person.firstName = args.firstName : null
+      args.lastName ? person.lastName = args.lastName : null
+      args.phoneNumber ? person.phoneNumber = args.phoneNumber : null
+      args.involvement ? person.involvement = args.involvement : null
+
+      person.save()
+
+      return person
+    },
     addInsuranceDetails: async (root, args, context) => {
         const currentUser = context.currentUser;
         if (!currentUser) {

@@ -34,23 +34,14 @@ const typeDefs = `
         insurancePolicyNumber: String!
     }
 
-input EditOtherDriverInput {
-    id: String!
-    firstName: String
-    lastName: String
-    phoneNumber: String
-    involvement: String
-}
-
-input EditInsuranceInput {
-    insuranceID: String!
-    carRegistrationNumber: String
-    insurerCompany: String
-    insurerContactNumber: String
-    insurancePolicy: String
-    insurancePolicyNumber: String
-    otherDriver: EditOtherDriverInput
-}
+    input EditInsuranceInput {
+        insuranceID: String!
+        carRegistrationNumber: String
+        insurerCompany: String
+        insurerContactNumber: String
+        insurancePolicy: String
+        insurancePolicyNumber: String
+    }
 
     input PhotoInput {
         url: String!
@@ -120,6 +111,13 @@ input EditInsuranceInput {
         lastName: String!
         phoneNumber: String!
         involvement: String!
+    ): Person
+    editPerson(
+        personID: ID!
+        firstName: String
+        lastName: String
+        phoneNumber: String
+        involvement: String
     ): Person
     addInsuranceDetails(
         carRegistrationNumber: String!
