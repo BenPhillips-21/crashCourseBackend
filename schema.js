@@ -119,6 +119,9 @@ const typeDefs = `
         phoneNumber: String
         involvement: String
     ): Person
+    deletePerson(
+        personID: ID!
+    ): Person
     addInsuranceDetails(
         carRegistrationNumber: String!
         insurerCompany: String!

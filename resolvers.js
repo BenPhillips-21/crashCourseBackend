@@ -113,6 +113,14 @@ const resolvers = {
 
       return person
     },
+    deletePerson: async (root, args) => {
+      const person = await Person.findByIdAndDelete(args.personID);
+      if (!person) {
+        throw new GraphQLError("Could not find that person in the database");
+      }
+    
+      return person
+    },    
     addInsuranceDetails: async (root, args, context) => {
         const currentUser = context.currentUser;
         if (!currentUser) {
@@ -165,7 +173,6 @@ const resolvers = {
       }
 
       const insurance = await Insurance.findById(args.input.insuranceID)
-      const driver = await Person.findById(args.input.otherDriver.id)
 
       if (!insurance) {
         return null
@@ -175,15 +182,8 @@ const resolvers = {
         args.input.insurerContactNumber ? insurance.insurerContactNumber = args.input.insurerContactNumber : null
         args.input.insurancePolicy ? insurance.insurancePolicy = args.input.insurancePolicy : null
         args.input.insurancePolicyNumber ? insurance.insurancePolicyNumber = args.input.insurancePolicyNumber : null
-        insurance.save()
 
-        if (driver) {
-          args.input.otherDriver.firstName ? driver.firstName = args.input.otherDriver.firstName : null
-          args.input.otherDriver.lastName ? driver.lastName = args.input.otherDriver.lastName : null
-          args.input.otherDriver.phoneNumber ? driver.phoneNumber = args.input.otherDriver.phoneNumber : null
-          args.input.otherDriver.involvement ? driver.involvement = args.input.otherDriver.involvement : null
-          driver.save()
-        }
+        insurance.save()
         return insurance
     }
     },
