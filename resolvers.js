@@ -249,121 +249,121 @@ const resolvers = {
 
       return accident
     },
-    // editAccident: async (root, args, context) => {
-    //   const currentUser = context.currentUser;
-    //   if (!currentUser) {
-    //     throw new GraphQLError('Not authenticated');
-    //   }
+    editAccident: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
 
-    //   const foundItem = currentUser.accidents.find(item => item.toString() === args.accidentID)
+      const foundItem = currentUser.accidents.find(item => item.toString() === args.accidentID)
 
-    //   if (!foundItem) {
-    //     throw new GraphQLError('Cannot find this accident')
-    //   } 
+      if (!foundItem) {
+        throw new GraphQLError('Cannot find this accident')
+      } 
 
-    //   const accident = await Accident.findById(args.accidentID)
+      const accident = await Accident.findById(args.accidentID)
 
-    //   if (!accident) {
-    //     return null
-    // } else {
-    //     args.date ? accident.date = args.date : null
-    //     args.time ? accident.time = args.time : null
-    //     args.location ? accident.location = args.location : null
-    //     args.speed ? accident.speed = args.speed : null
-    //     args.weatherConditions ? accident.weatherConditions = args.weatherConditions : null
-    //     args.crashDescription ? accident.crashDescription = args.crashDescription : null
-    //     accident.save()
-    //     return accident
-    // }      
-    // },
-    // deleteAccident: async (root, args, context) => {
-    //   const currentUser = context.currentUser;
-    //   if (!currentUser) {
-    //     throw new GraphQLError('Not authenticated');
-    //   }
+      if (!accident) {
+        return null
+    } else {
+        args.date ? accident.date = args.date : null
+        args.time ? accident.time = args.time : null
+        args.location ? accident.location = args.location : null
+        args.speed ? accident.speed = args.speed : null
+        args.weatherConditions ? accident.weatherConditions = args.weatherConditions : null
+        args.crashDescription ? accident.crashDescription = args.crashDescription : null
+        accident.save()
+        return accident
+    }      
+    },
+    deleteAccident: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
 
-    //   try {
-    //     const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
+      try {
+        const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
 
-    //     if (!isUserAccident) {
-    //       throw new GraphQLError('Cannot find this accident')
-    //     } 
+        if (!isUserAccident) {
+          throw new GraphQLError('Cannot find this accident')
+        } 
 
-    //     const accidentToDelete = await Accident.findByIdAndDelete(args.accidentID)
-    //     if (!accidentToDelete) {
-    //       throw new GraphQLError("Could not delete that accident")
-    //     }
+        const accidentToDelete = await Accident.findByIdAndDelete(args.accidentID)
+        if (!accidentToDelete) {
+          throw new GraphQLError("Could not delete that accident")
+        }
 
-    //     return accidentToDelete
-    //   } catch (err) {
-    //     throw new GraphQLError(err.message)
-    //   }
-    // },
-    // addPhoto: async (root, args, context) => {
-    //   const currentUser = context.currentUser;
-    //   if (!currentUser) {
-    //     throw new GraphQLError('Not authenticated');
-    //   }
+        return accidentToDelete
+      } catch (err) {
+        throw new GraphQLError(err.message)
+      }
+    },
+    addPhoto: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
 
-    //   try {
-    //     const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
+      try {
+        const isUserAccident = currentUser.accidents.find(item => item.toString() === args.accidentID)
 
-    //     if (!isUserAccident) {
-    //       throw new GraphQLError('Cannot find this accident')
-    //     } 
+        if (!isUserAccident) {
+          throw new GraphQLError('Cannot find this accident')
+        } 
 
-    //     const accident = await Accident.findById(args.accidentID)
-    //     if (!accident) {
-    //       throw new GraphQLError("Could not find that accident")
-    //     }
-    //     const photo = {
-    //       url: args.photoURL
-    //     }
+        const accident = await Accident.findById(args.accidentID)
+        if (!accident) {
+          throw new GraphQLError("Could not find that accident")
+        }
+        const photo = {
+          url: args.photoURL
+        }
 
-    //     accident.photos.push(photo)
+        accident.photos.push(photo)
 
-    //     try {
-    //       await accident.save();
-    //     } catch (err) {
-    //       throw new GraphQLError("Could not add photo to accident");
-    //     }
+        try {
+          await accident.save();
+        } catch (err) {
+          throw new GraphQLError("Could not add photo to accident");
+        }
   
-    //     return accident
-    //   } catch (err) {
-    //     throw new GraphQLError(err.message)
-    //   }
-    // },
-    // deletePhoto: async (root, args, context) => {
-    //   const currentUser = context.currentUser;
-    //   if (!currentUser) {
-    //     throw new GraphQLError('Not authenticated');
-    //   }
+        return accident
+      } catch (err) {
+        throw new GraphQLError(err.message)
+      }
+    },
+    deletePhoto: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
     
-    //   try {
-    //     const foundItem = currentUser.accidents.find(
-    //       item => item.toString() === args.accidentID
-    //     );
+      try {
+        const foundItem = currentUser.accidents.find(
+          item => item.toString() === args.accidentID
+        );
     
-    //     if (!foundItem) {
-    //       throw new GraphQLError('Cannot find those accident details');
-    //     }
+        if (!foundItem) {
+          throw new GraphQLError('Cannot find those accident details');
+        }
     
-    //     const accident = await Accident.findById(args.accidentID);
-    //     if (!accident) {
-    //       throw new GraphQLError("Could not find those accident details");
-    //     }
+        const accident = await Accident.findById(args.accidentID);
+        if (!accident) {
+          throw new GraphQLError("Could not find those accident details");
+        }
     
-    //     accident.photos = accident.photos.filter(
-    //       photo => photo.url !== args.photoURL
-    //     );
+        accident.photos = accident.photos.filter(
+          photo => photo.url !== args.photoURL
+        );
     
-    //     await accident.save();
+        await accident.save();
     
-    //     return accident;
-    //   } catch (err) {
-    //     throw new GraphQLError(err.message);
-    //   }
-    // },
+        return accident;
+      } catch (err) {
+        throw new GraphQLError(err.message);
+      }
+    },
   }
 }
 

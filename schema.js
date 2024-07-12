@@ -137,6 +137,26 @@ const typeDefs = `
         insurances: [ID!]
         witnesses: [ID!]
     ): accident
+    editAccident(
+        accidentID: ID!
+        date: DateTime
+        time: String
+        location: String
+        speed: String
+        weatherConditions: String
+        crashDescription: String
+    ): accident
+    deleteAccident(
+        accidentID: ID!
+    ): accident
+    addPhoto(
+        accidentID: ID!
+        photoURL: String!
+    ): accident
+    deletePhoto(
+        accidentID: ID!
+        photoURL: String!
+    ): accident
 }
 `
 
