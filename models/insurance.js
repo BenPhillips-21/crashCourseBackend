@@ -5,7 +5,12 @@ const schema = new Schema({
     owner: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
+    },
+    otherDriver: {
+        type: Schema.Types.ObjectId,
+        ref: 'Person',
+        required: false  
     },
     carRegistrationNumber: {
         type: String,
@@ -28,5 +33,13 @@ const schema = new Schema({
         required: true
     }
 })
+
+schema.path('owner').validate(function(value) {
+    return this.owner || this.otherDriver
+  }, 'Either owner or otherDriver must be provided.')
+  
+schema.path('otherDriver').validate(function(value) {
+    return this.owner || this.otherDriver
+  }, 'Either owner or otherDriver must be provided.')
 
 module.exports = mongoose.model('Insurance', schema)

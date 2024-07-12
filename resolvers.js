@@ -5,8 +5,10 @@ const { GraphQLError } = require('graphql')
 const User = require('./models/user')
 const Insurance = require('./models/insurance')
 const Accident = require('./models/accident')
+const Person = require('./models/person')
 
 const dotenv = require('dotenv');
+const { argsToArgsConfig } = require('graphql/type/definition')
 
 dotenv.config();
 
@@ -82,29 +84,72 @@ const resolvers = {
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     },
     addInsuranceDetails: async (root, args, context) => {
-      const currentUser = context.currentUser;
-      if (!currentUser) {
-        throw new GraphQLError('Not authenticated');
+      console.log(args.input.otherDriver)
+
+      if (!args.input.otherDriver) {
+        const currentUser = context.currentUser;
+        if (!currentUser) {
+          throw new GraphQLError('Not authenticated');
+        }
+    
+        const insurance = new Insurance({ 
+          owner: currentUser._id,
+          insurerContactNumber: args.input.insurerContactNumber,
+          insurerCompany: args.input.insurerCompany,
+          insurancePolicyNumber: args.input.insurancePolicyNumber,
+          insurancePolicy: args.input.insurancePolicy,
+          carRegistrationNumber: args.input.carRegistrationNumber
+         });
+    
+        try {
+          await insurance.save();
+        } catch (err) {
+          throw new GraphQLError("Could not save insurance details!!!!!");
+        }
+    
+        currentUser.insuranceDetails.push(insurance._id);
+        try {
+          await currentUser.save();
+        } catch (err) {
+          throw new GraphQLError("Could not update user with insurance details");
+        }
+    
+        return insurance;
+      } else {
+        console.log(args.input)
+        const driver = new Person({ 
+          firstName: args.input.otherDriver.firstName,
+          lastName: args.input.otherDriver.lastName,
+          phoneNumber: args.input.otherDriver.phoneNumber,
+          involvement: args.input.otherDriver.involvement
+        });
+    
+        try {
+          await driver.save();
+        } catch (err) {
+          throw new GraphQLError("Could not save driver");
+        }
+
+        const newDriver = await Person.findOne({ phoneNumber: args.input.otherDriver.phoneNumber });
+    
+        const insurance = new Insurance({ 
+          otherDriver: newDriver._id,
+          insurerContactNumber: args.input.insurerContactNumber,
+          insurerCompany: args.input.insurerCompany,
+          insurancePolicyNumber: args.input.insurancePolicyNumber,
+          insurancePolicy: args.input.insurancePolicy,
+          carRegistrationNumber: args.input.carRegistrationNumber
+        });
+    
+        try {
+          await insurance.save();
+        } catch (err) {
+          throw new GraphQLError("DOH... Could not save insurance details");
+        }
+    
+        return insurance;
       }
-
-      const insurance = new Insurance({ ...args });
-      insurance.owner = currentUser._id;
-
-      try {
-        await insurance.save();
-      } catch (err) {
-        throw new GraphQLError("Could not save insurance details");
-      }
-
-      currentUser.insuranceDetails.push(insurance._id);
-      try {
-        await currentUser.save();
-      } catch (err) {
-        throw new GraphQLError("Could not update user with insurance details");
-      }
-
-      return insurance;
-    },
+    },    
     editInsuranceDetails: async (root, args, context) => {
       const currentUser = context.currentUser
       if (!currentUser) {
@@ -155,6 +200,7 @@ const resolvers = {
         throw new GraphQLError(err.message)
       }
     },
+    // adding insurance details 2 crash
     addAccident: async (root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {

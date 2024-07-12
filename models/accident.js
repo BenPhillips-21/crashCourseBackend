@@ -38,37 +38,15 @@ const schema = new Schema({
           unique: true
         },
       }],
-    otherVehicles: [{ 
-        registrationNumber: {
-            type: String,
-            required: true,
-        },
-        make: {
-            type: String,
-            required: true
-        },
-        model: {
-            type: String,
-            required: false
-        } 
+    insurances: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Insurance',
+        required: false     
     }],
     witnesses: [{ 
-        firstName: {
-            type: String,
-            required: true
-        },
-        lastName: {
-            type: String,
-            required: true
-        },
-        phoneNumber: {
-            type: String,
-            required: true
-        },
-        involvement: {
-            type: String,
-            required: true
-        }
+        type: Schema.Types.ObjectId,
+        ref: 'Person',
+        required: false  
     }],
 })
 

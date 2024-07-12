@@ -15,14 +15,39 @@ const typeDefs = `
         id: ID!
     }
 
+    type Person {
+        id: ID!
+        firstName: String!
+        lastName: String!
+        phoneNumber: String!
+    }
+
     type insuranceDetails {
         id: ID!
+        owner: ID
+        otherDriver: ID
         carRegistrationNumber: String!
         insurerCompany: String!
         insurerContactNumber: String!
         insurancePolicy: String!
         insurancePolicyNumber: String!
     }
+
+    input OtherDriverInput {
+    firstName: String!
+    lastName: String!
+    phoneNumber: String!
+    involvement: String!
+}
+
+input AddInsuranceInput {
+    carRegistrationNumber: String!
+    insurerCompany: String!
+    insurerContactNumber: String!
+    insurancePolicy: String!
+    insurancePolicyNumber: String!
+    otherDriver: OtherDriverInput
+}
 
     input PhotoInput {
         url: String!
@@ -51,8 +76,8 @@ const typeDefs = `
         weatherConditions: String!
         crashDescription: String!
         photos: [Photo!]
-        otherVehicles: [Vehicle!]
-        witnesses: [Witness!]
+        insurances: [insuranceDetails!]
+        witnesses: [Person!]
     }
 
     type Photo {
@@ -63,13 +88,6 @@ const typeDefs = `
         registrationNumber: String!
         make: String!
         model: String!
-    }
-
-    type Witness {
-        firstName: String!
-        lastName: String!
-        phoneNumber: String!
-        involvement: String!
     }
 
     type Token {
@@ -95,11 +113,7 @@ const typeDefs = `
         password: String!
     ): Token
     addInsuranceDetails(
-        carRegistrationNumber: String!
-        insurerCompany: String!
-        insurerContactNumber: String!
-        insurancePolicy: String!
-        insurancePolicyNumber: String!
+        input: AddInsuranceInput
     ): insuranceDetails
     editInsuranceDetails(
         insuranceID: String!
