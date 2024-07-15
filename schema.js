@@ -84,6 +84,7 @@ const typeDefs = `
         getAllInsurances: [insuranceDetails]
         getAllMyInsurances: [insuranceDetails]
         getAllAccidents: [accident]
+        getAllMyAccidents: [accident]
     }
 
     type Mutation {

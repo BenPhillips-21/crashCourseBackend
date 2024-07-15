@@ -9,6 +9,7 @@ const Person = require('./models/person')
 
 const dotenv = require('dotenv');
 const { argsToArgsConfig } = require('graphql/type/definition')
+const accident = require('./models/accident')
 
 dotenv.config();
 
@@ -48,13 +49,16 @@ const resolvers = {
       if (!currentUser) {
         throw new GraphQLError('Not authenticated');
       }
-      const userID = currentUser._id.toString()
+    
       try {
-        const allMyInsurances = await Insurance.find().populate('owner');
-        const myInsurances = allMyInsurances.filter(insurance => insurance.owner._id.toString() === userID)
-        return myInsurances
+        const insuranceIds = currentUser.insuranceDetails.map(id => id.toString());
+    
+        const userInsurances = await Insurance.find({ _id: { $in: insuranceIds } }).populate('owner');
+    
+        return userInsurances;
       } catch (err) {
-        throw new GraphQLError('Could not fetch all accidents', { error: err });
+        console.error('Error fetching insurances:', err);
+        throw new GraphQLError('Could not fetch all insurances', { error: err });
       }
     },
     getAllAccidents: async (root) => {
@@ -65,9 +69,23 @@ const resolvers = {
         throw new UserInputError('Could not fetch all accidents', { error: err });
       } 
     },
-    // getAllMyAccidents: async (root) => {
+    getAllMyAccidents: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
 
-    // },
+      try {
+        const accidentIds = currentUser.accidents.map(id => id.toString());
+    
+        const userAccidents = await Accident.find({ _id: { $in: accidentIds } }).populate('insurances').populate('witnesses');
+    
+        return userAccidents
+      } catch (err) {
+        console.error('Error fetching accidents:', err);
+        throw new GraphQLError('Could not fetch all accidents', { error: err });
+      }
+    },
     findAccident: async(root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
