@@ -23,10 +23,11 @@ const typeDefs = `
         involvement: String!
     }
 
+    union Owner = Person | User
+
     type insuranceDetails {
         id: ID!
-        owner: ID
-        otherDriver: ID
+        owner: Owner
         carRegistrationNumber: String!
         insurerCompany: String!
         insurerContactNumber: String!
@@ -80,6 +81,7 @@ const typeDefs = `
         findAccident(
             accidentID: ID!
         ): accident
+        getAllInsurances: [insuranceDetails]
     }
 
     type Mutation {
@@ -113,6 +115,7 @@ const typeDefs = `
         personID: ID!
     ): Person
     addInsuranceDetails(
+        ownerType: String!
         carRegistrationNumber: String!
         insurerCompany: String!
         insurerContactNumber: String!
@@ -126,6 +129,7 @@ const typeDefs = `
     deleteInsuranceDetails(
         insuranceID: String!
     ): insuranceDetails
+    deleteAllInsurances: String
     addAccident(
         date: DateTime!
         time: String!

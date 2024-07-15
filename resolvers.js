@@ -27,13 +27,31 @@ const resolvers = {
       const userID = currentUser._id.toString()
       try {
         const populatedUser = await User.findById(userID)
-          .populate('insuranceDetails')
-          .populate('accidents')
-        return populatedUser;
+        .populate('insuranceDetails')
+        .populate({
+          path: 'accidents',
+          populate: [
+            { path: 'witnesses' },
+            { 
+              path: 'insurances',
+              populate: { path: 'owner' } 
+            }
+          ]
+        });
+      
+      return populatedUser;         
       } catch (err) {
         throw new GraphQLError("Could not fetch user data");
       }
     },
+    getAllInsurances: async (root) => {
+      try {
+        const allInsurances = await Insurance.find().populate('owner');
+        return allInsurances
+      } catch (err) {
+        throw new UserInputError('Could not fetch all insurances', { error: err });
+      }
+    },    
     findAccident: async(root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
@@ -47,6 +65,32 @@ const resolvers = {
         return accident;
       } catch (err) {
         throw new GraphQLError("Could not fetch accident data");
+      }
+    },
+  },
+  Owner: {
+    __resolveType: async (obj, context, info) => {
+      try {
+        if (obj._id) {
+          const foundUser = await User.findById(obj._id);
+          if (foundUser) {
+            console.log(foundUser)
+            console.log("found user!")
+            return 'User';
+          }
+          const foundPerson = await Person.findById(obj._id);
+          if (foundPerson) {
+            console.log(foundPerson)
+            console.log("found person!")
+            return 'Person';
+          }
+        }
+        console.log(obj)
+        console.log("null returning")
+        return null; 
+      } catch (error) {
+        console.error('Error resolving type:', error);
+        return null;
       }
     },
   },
@@ -143,6 +187,7 @@ const resolvers = {
         }
 
         const mutation = {
+          ownerType: args.ownerType,
           insurerContactNumber: args.insurerContactNumber,
           insurerCompany: args.insurerCompany,
           insurancePolicyNumber: args.insurancePolicyNumber,
@@ -159,7 +204,7 @@ const resolvers = {
           })
         } else {
           insurance = new Insurance({ 
-            otherDriver: args.otherDriver,
+            owner: args.otherDriver,
             ...mutation
           })
         }        
@@ -167,7 +212,7 @@ const resolvers = {
         try {
           await insurance.save();
         } catch (err) {
-          throw new GraphQLError("Could not save insurance details!!!!!");
+          throw new GraphQLError('Error adding insurance details: ' + err.message);
         }
         
         if (!args.otherDriver) {
@@ -180,7 +225,15 @@ const resolvers = {
       }
     
         return insurance;
-    },    
+    },  
+    deleteAllInsurances: async () => {
+      try {
+        await Insurance.deleteMany({});
+        return 'All insurances deleted successfully';
+      } catch (error) {
+        throw new Error('Failed to delete all insurances');
+      }
+    },  
     editInsuranceDetails: async (root, args, context) => {
       const currentUser = context.currentUser
       if (!currentUser) {
