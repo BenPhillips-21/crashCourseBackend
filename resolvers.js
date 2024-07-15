@@ -28,16 +28,7 @@ const resolvers = {
       try {
         const populatedUser = await User.findById(userID)
         .populate('insuranceDetails')
-        .populate({
-          path: 'accidents',
-          populate: [
-            { path: 'witnesses' },
-            { 
-              path: 'insurances',
-              populate: { path: 'owner' } 
-            }
-          ]
-        });
+        .populate('accidents')
       
       return populatedUser;         
       } catch (err) {
@@ -51,7 +42,32 @@ const resolvers = {
       } catch (err) {
         throw new UserInputError('Could not fetch all insurances', { error: err });
       }
-    },    
+    }, 
+    getAllMyInsurances: async (root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+      const userID = currentUser._id.toString()
+      try {
+        const allMyInsurances = await Insurance.find().populate('owner');
+        const myInsurances = allMyInsurances.filter(insurance => insurance.owner._id.toString() === userID)
+        return myInsurances
+      } catch (err) {
+        throw new GraphQLError('Could not fetch all accidents', { error: err });
+      }
+    },
+    getAllAccidents: async (root) => {
+      try {
+        const allAccidents = await Accident.find().populate('insurances').populate('witnesses');
+        return allAccidents
+      } catch (err) {
+        throw new UserInputError('Could not fetch all accidents', { error: err });
+      } 
+    },
+    // getAllMyAccidents: async (root) => {
+
+    // },
     findAccident: async(root, args, context) => {
       const currentUser = context.currentUser;
       if (!currentUser) {
