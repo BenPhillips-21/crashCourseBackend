@@ -71,7 +71,7 @@ const resolvers = {
         const insurance = await Insurance.findById(args.insuranceID).populate('owner');
         return insurance;
       } catch (err) {
-        throw new GraphQLError("Could not fetch insurance data");
+        throw new GraphQLError('Could not fetch insurance', { error: err });
       }
     },
     getAllAccidents: async (root) => {
@@ -107,11 +107,16 @@ const resolvers = {
   
       try {
         const accident = await Accident.findById(args.accidentID)
-          .populate('insurances')
+          .populate({
+            path: 'insurances',
+            populate: {
+              path: 'owner'
+            }
+          })
           .populate('witnesses')
         return accident;
       } catch (err) {
-        throw new GraphQLError("Could not fetch accident data");
+        throw new GraphQLError('Could not fetch accident', { error: err });
       }
     },
   },
