@@ -61,6 +61,19 @@ const resolvers = {
         throw new GraphQLError('Could not fetch all insurances', { error: err });
       }
     },
+    findInsurance: async(root, args, context) => {
+      const currentUser = context.currentUser;
+      if (!currentUser) {
+        throw new GraphQLError('Not authenticated');
+      }
+  
+      try {
+        const insurance = await Insurance.findById(args.insuranceID).populate('owner');
+        return insurance;
+      } catch (err) {
+        throw new GraphQLError("Could not fetch insurance data");
+      }
+    },
     getAllAccidents: async (root) => {
       try {
         const allAccidents = await Accident.find().populate('insurances').populate('witnesses');

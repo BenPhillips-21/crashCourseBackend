@@ -78,13 +78,16 @@ const typeDefs = `
 
     type Query {
         me: User
-        findAccident(
-            accidentID: ID!
-        ): accident
+        findInsurance(
+            insuranceID: ID!
+        ): insuranceDetails
         getAllInsurances: [insuranceDetails]
         getAllMyInsurances: [insuranceDetails]
         getAllAccidents: [accident]
         getAllMyAccidents: [accident]
+        findAccident(
+            accidentID: ID!
+        ): accident
     }
 
     type Mutation {
